@@ -23,7 +23,7 @@ class sslify(object):
                     if self.subdomains:
                         hsts_policy += '; includeSubDomains'
                     if self.preload:
-                        hsts_policy += '; ipreload'
+                        hsts_policy += '; preload'
                     headers.append(('Strict-Transport-Security', hsts_policy))
                     return start_response(status, headers, exc_info)
                 return self.app(environ, wrapped_start_response)
