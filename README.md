@@ -11,7 +11,7 @@ for raw WSGI apps.
 
 Why?
 
-I was using [static](https://github.com/lukearno/static), and I wanted 
+I was using [static](https://github.com/lukearno/static), and I wanted
 to force SSL. It was hard. So I made it easy:
 
 ```python
@@ -51,5 +51,21 @@ You can pass some keyword arguments to `sslify` to control its behavior:
 ## Contributing
 
 Testing: use [py.test](http://pytest.org).
+
+### Docker setup
+
+You can develop and test this code within a Docker container.
+
+To build the image:
+
+```
+docker build -t wsgi-sslify .
+```
+
+To run tests:
+
+```
+docker run -it --rm -v $(pwd):/app/ wsgi-sslify pytest
+```
 
 Contributing: send me pull requests.
