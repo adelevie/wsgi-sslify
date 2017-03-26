@@ -5,13 +5,15 @@ YEAR_IN_SECS = 31536000
 
 class sslify(object):
     def __init__(self, app, hsts=True, max_age=YEAR_IN_SECS, subdomains=False,
-                 permanent=True, proxy_header='X-Forwarded-Proto'):
+                 permanent=True, proxy_header='X-Forwarded-Proto',
+                 preload=False):
         self.app = app
         self.hsts = hsts
         self.max_age = max_age
         self.subdomains = subdomains
         self.permanent = permanent
         self.proxy_header = proxy_header
+        self.preload = preload
 
     def __call__(self, environ, start_response):
         if self.is_secure(environ):
@@ -20,12 +22,14 @@ class sslify(object):
                     hsts_policy = 'max-age=%s' % self.max_age
                     if self.subdomains:
                         hsts_policy += '; includeSubDomains'
+                    if self.preload:
+                        hsts_policy += '; preload'
                     headers.append(('Strict-Transport-Security', hsts_policy))
                     return start_response(status, headers, exc_info)
                 return self.app(environ, wrapped_start_response)
             else:
                 return self.app(environ, start_response)
-        
+
         else:
             headers = [('Location', self.construct_secure_url(environ))]
             if self.permanent:
@@ -38,7 +42,7 @@ class sslify(object):
     def is_secure(self, environ):
         if environ.get('wsgi.url_scheme', 'http') == 'https':
             return True
-        
+
         if self.proxy_header:
             header = 'HTTP_' + self.proxy_header.upper().replace('-', '_')
             if environ.get(header, 'http') == 'https':
