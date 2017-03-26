@@ -61,3 +61,10 @@ def test_hsts_subdomains():
     assert status == '200 OK'
     assert headers['Strict-Transport-Security'] == 'max-age=31536000; includeSubDomains'
 
+def test_hsts_preload():
+    app = sslify(testapp.test_app, preload=True)
+    env = create_environ()
+    env['wsgi.url_scheme'] = 'https'
+    app_iter, status, headers = run_wsgi_app(app, env)
+    assert status == '200 OK'
+    assert 'preload' in headers['Strict-Transport-Security']
